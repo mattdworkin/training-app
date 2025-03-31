@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within this application, please send an email to security@yourcompany.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within this application, please send an email to mtdworkin@gmail.com. All security vulnerabilities will be promptly addressed.
 
 Please include the following information in your report:
 
