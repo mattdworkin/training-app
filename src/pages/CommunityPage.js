@@ -16,6 +16,7 @@ import {
   Badge,
   styled,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import GroupsIcon from '@mui/icons-material/Groups';
 import EventIcon from '@mui/icons-material/Event';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -108,6 +109,11 @@ const PostCard = styled(Paper)(({ theme }) => ({
 const ActionButton = styled(Button)(({ theme }) => ({
   textTransform: 'none',
   fontWeight: 600,
+  borderRadius: 999,
+  paddingInline: theme.spacing(1.5),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+  },
 }));
 
 // Placeholder data
@@ -153,7 +159,8 @@ const suggestedGroups = [
 const activityFeed = [
   {
     user: "Sarah Johnson",
-    avatar: "/images/avatar1.jpg",
+    initials: "SJ",
+    avatarColor: "#ff5f7f",
     action: "completed a 10K run",
     time: "2 hours ago",
     details: "Finished my longest run this week! Feeling great about my progress toward the half marathon.",
@@ -162,7 +169,8 @@ const activityFeed = [
   },
   {
     user: "Michael Chen",
-    avatar: "/images/avatar2.jpg",
+    initials: "MC",
+    avatarColor: "#11a4a5",
     action: "joined Marathon Training Group",
     time: "5 hours ago",
     details: "Excited to start training with this group for my first full marathon!",
@@ -171,7 +179,8 @@ const activityFeed = [
   },
   {
     user: "Alicia Rodriguez",
-    avatar: "/images/avatar3.jpg",
+    initials: "AR",
+    avatarColor: "#f5a524",
     action: "shared a new route",
     time: "Yesterday",
     details: "Found this amazing 5-mile route with great views and minimal traffic. Perfect for an easy recovery run!",
@@ -264,7 +273,16 @@ function CommunityPage() {
               <React.Fragment key={index}>
                 <PostCard elevation={0}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Avatar src={activity.avatar} sx={{ width: 48, height: 48 }} />
+                    <Avatar
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: activity.avatarColor,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {activity.initials}
+                    </Avatar>
                     <Box sx={{ ml: 2 }}>
                       <Typography variant="subtitle1" fontWeight={700}>
                         {activity.user}

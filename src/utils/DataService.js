@@ -39,7 +39,8 @@ export const DataService = {
    * Generate a training plan via API
    * @param {Object} userData - User data for plan generation
    * @param {number|string} userData.age - User's age (13-100)
-   * @param {number|string} userData.weight - User's weight in kg (30-200)
+   * @param {number|string} userData.weight - User's weight (kg or lbs based on weightUnit)
+   * @param {string} [userData.weightUnit] - Weight unit ('kg' or 'lbs')
    * @param {string} userData.gender - User's gender (male/female/other)
    * @param {number|string} userData.weeklyMileage - Current weekly running mileage (0-50)
    */
@@ -50,10 +51,14 @@ export const DataService = {
         throw new Error('Invalid user data provided');
       }
       
-      // Convert string values to numbers if needed
+      const weightUnit = userData.weightUnit === 'lbs' ? 'lbs' : 'kg';
+      const weightValue = Number(userData.weight);
+      const weightInKg = weightUnit === 'lbs' ? weightValue * 0.45359237 : weightValue;
+
+      // Convert values to API format (kg)
       const processedData = {
         age: Number(userData.age),
-        weight: Number(userData.weight),
+        weight: Number(weightInKg.toFixed(2)),
         gender: userData.gender,
         weeklyMileage: Number(userData.weeklyMileage)
       };

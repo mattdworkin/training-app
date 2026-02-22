@@ -1,18 +1,18 @@
 import React from 'react';
-import { 
-  Box, 
-  Typography, 
-  Grid, 
-  Card, 
-  CardContent, 
-  CardMedia, 
-  Button, 
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Button,
   Container,
-  Paper,
+  Chip,
+  Stack,
   Avatar,
-  useTheme,
-  styled
 } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
+import { keyframes } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
@@ -23,233 +23,283 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import HealingIcon from '@mui/icons-material/Healing';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import WatchIcon from '@mui/icons-material/Watch';
+import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 
-// Styled components
+const floatIn = keyframes`
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+`;
+
 const HeroSection = styled(Box)(({ theme }) => ({
-  textAlign: 'center',
-  padding: theme.spacing(10, 2),
+  borderRadius: 34,
+  padding: theme.spacing(7, 3),
+  marginBottom: theme.spacing(6),
   position: 'relative',
   overflow: 'hidden',
-  borderRadius: 16,
-  backgroundColor: theme.palette.background.subtle,
-  marginBottom: theme.spacing(8),
-  backgroundImage: 'linear-gradient(135deg, rgba(255, 107, 149, 0.1) 0%, rgba(255, 107, 149, 0.05) 100%)',
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+  background:
+    'linear-gradient(120deg, rgba(255, 95, 127, 0.18) 0%, rgba(255, 141, 162, 0.11) 35%, rgba(17, 164, 165, 0.12) 100%)',
+  boxShadow: `0 26px 50px ${alpha(theme.palette.secondary.main, 0.14)}`,
+  [theme.breakpoints.up('md')]: {
+    padding: theme.spacing(9, 7),
+  },
   '&::before': {
     content: '""',
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage: 'url("/images/pattern.svg")',
-    backgroundSize: 'cover',
-    opacity: 0.03,
-    zIndex: 0,
+    inset: 0,
+    backgroundImage: 'url("/pattern.svg")',
+    opacity: 0.08,
+    pointerEvents: 'none',
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    width: 340,
+    height: 340,
+    right: -120,
+    top: -80,
+    borderRadius: '50%',
+    background: `radial-gradient(circle, ${alpha(theme.palette.info.main, 0.3)} 0%, transparent 68%)`,
+    pointerEvents: 'none',
   },
 }));
 
 const HeroTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
   marginBottom: theme.spacing(2),
-  position: 'relative',
-  '& span': {
-    color: theme.palette.primary.main,
+  lineHeight: 1.08,
+  letterSpacing: '-0.02em',
+  maxWidth: 840,
+  '& .accent': {
+    background: 'linear-gradient(110deg, #ff4f72 0%, #12a8a6 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
 }));
 
 const HeroSubtitle = styled(Typography)(({ theme }) => ({
-  maxWidth: '800px',
-  margin: '0 auto',
-  marginBottom: theme.spacing(4),
+  maxWidth: 720,
   color: theme.palette.text.secondary,
+  marginBottom: theme.spacing(3),
+  fontSize: '1.05rem',
+}));
+
+const HeroSpark = styled(Chip)(({ theme }) => ({
+  borderRadius: 999,
+  backgroundColor: alpha(theme.palette.secondary.main, 0.9),
+  color: '#fff',
+  marginBottom: theme.spacing(2),
+  '& .MuiChip-icon': {
+    color: '#fff',
+  },
+}));
+
+const QuickStats = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+  gap: theme.spacing(1.5),
+}));
+
+const StatCard = styled(Box)(({ theme }) => ({
+  borderRadius: 18,
+  border: `1px solid ${alpha(theme.palette.secondary.main, 0.12)}`,
+  backgroundColor: alpha('#ffffff', 0.78),
+  padding: theme.spacing(2),
+  backdropFilter: 'blur(6px)',
+}));
+
+const SectionHeader = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  textAlign: 'center',
 }));
 
 const FeatureCard = styled(Card)(({ theme }) => ({
   height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  borderRadius: 16,
-  overflow: 'hidden',
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  boxShadow: '0 6px 16px rgba(0, 0, 0, 0.05)',
+  cursor: 'pointer',
+  transition: 'transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease',
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
   '&:hover': {
     transform: 'translateY(-8px)',
-    boxShadow: '0 12px 32px rgba(0, 0, 0, 0.08)',
+    boxShadow: `0 24px 34px ${alpha(theme.palette.secondary.main, 0.16)}`,
+    borderColor: alpha(theme.palette.primary.main, 0.32),
   },
 }));
 
 const FeatureIcon = styled(Avatar)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: '#FFFFFF',
-  width: 56,
-  height: 56,
+  width: 50,
+  height: 50,
+  backgroundColor: alpha(theme.palette.primary.main, 0.14),
+  color: theme.palette.primary.main,
   marginBottom: theme.spacing(2),
-  boxShadow: '0 4px 12px rgba(255, 107, 149, 0.3)',
 }));
 
-const FeatureTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 600,
-  marginBottom: theme.spacing(1),
-}));
-
-const FeatureDescription = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  flexGrow: 1,
-}));
-
-const SectionTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 700,
-  marginBottom: theme.spacing(1),
-  position: 'relative',
-  display: 'inline-block',
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: -8,
-    left: 0,
-    width: '40%',
-    height: 4,
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: 2,
+const CtaSection = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(8),
+  marginBottom: theme.spacing(3),
+  borderRadius: 28,
+  overflow: 'hidden',
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+  background: 'linear-gradient(125deg, #ff5f7f 0%, #ff8aa0 52%, #ffac66 100%)',
+  color: '#fff',
+  padding: theme.spacing(6, 3),
+  textAlign: 'center',
+  [theme.breakpoints.up('md')]: {
+    padding: theme.spacing(7),
   },
 }));
 
-const SectionSubtitle = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  marginBottom: theme.spacing(6),
-  maxWidth: '800px',
-}));
-
-const CtaButton = styled(Button)(({ theme }) => ({
-  borderRadius: 999,
-  padding: theme.spacing(1.5, 4),
-  textTransform: 'none',
-  fontWeight: 600,
-  fontSize: '1rem',
-  boxShadow: '0 6px 20px rgba(255, 107, 149, 0.25)',
-  '&:hover': {
-    boxShadow: '0 8px 26px rgba(255, 107, 149, 0.35)',
-    transform: 'translateY(-2px)',
-  },
-}));
-
-// Feature data
 const features = [
   {
     title: 'Training Plan',
-    description: 'Personalized running plans based on your fitness level, goals, and schedule.',
+    description: 'Personalized weekly schedules that adapt to your current mileage and goals.',
     icon: <DirectionsRunIcon fontSize="large" />,
-    path: '/training'
+    path: '/training',
   },
   {
-    title: 'Recovery & Injury Prevention',
-    description: 'Smart recovery recommendations and strategies to prevent common running injuries.',
+    title: 'Recovery',
+    description: 'Interactive injury prevention guidance to keep your consistency strong.',
     icon: <HealingIcon fontSize="large" />,
-    path: '/recovery'
+    path: '/recovery',
   },
   {
-    title: 'Race Preparation',
-    description: 'Comprehensive guides for preparing for races of any distance with custom tapering.',
+    title: 'Race Prep',
+    description: 'Race strategy timelines and readiness tracking for every distance.',
     icon: <EmojiEventsIcon fontSize="large" />,
-    path: '/races'
+    path: '/races',
   },
   {
-    title: 'Performance Analysis',
-    description: 'Track your progress with detailed analytics, pace calculators, and visualizations.',
+    title: 'Performance',
+    description: 'Metrics, trends, and charts that make your progress impossible to ignore.',
     icon: <ShowChartIcon fontSize="large" />,
-    path: '/performance'
+    path: '/performance',
   },
   {
-    title: 'Mental Training',
-    description: 'Mental techniques, visualization exercises, and motivational content for runners.',
+    title: 'Mental',
+    description: 'Focus training, mantras, and mindset tools for hard training days.',
     icon: <PsychologyIcon fontSize="large" />,
-    path: '/mental'
+    path: '/mental',
   },
   {
-    title: 'Nutrition Guidance',
-    description: 'Meal planning, race-day fueling strategies, and hydration recommendations.',
+    title: 'Nutrition',
+    description: 'Fueling plans and hydration guidance tuned to your running demands.',
     icon: <RestaurantIcon fontSize="large" />,
-    path: '/nutrition'
+    path: '/nutrition',
   },
   {
-    title: 'Runner Community',
-    description: 'Connect with fellow runners, join challenges, and share your achievements.',
+    title: 'Community',
+    description: 'Group challenges and social motivation to keep the spark alive.',
     icon: <PeopleIcon fontSize="large" />,
-    path: '/community'
+    path: '/community',
   },
   {
-    title: 'Strength Training',
-    description: 'Runner-specific strength workouts to improve performance and prevent injuries.',
+    title: 'Strength',
+    description: 'Runner-focused strength routines to improve power and durability.',
     icon: <FitnessCenterIcon fontSize="large" />,
-    path: '/strength'
+    path: '/strength',
   },
   {
-    title: 'Device Integration',
-    description: 'Sync with your favorite running watches, fitness trackers, and health apps.',
+    title: 'Devices',
+    description: 'Sync watches and apps for smarter training feedback loops.',
     icon: <WatchIcon fontSize="large" />,
-    path: '/devices'
-  }
+    path: '/devices',
+  },
 ];
 
 function HomePage() {
-  const theme = useTheme();
   const navigate = useNavigate();
-  
-  const handleNavigate = (path) => {
-    navigate(path);
-  };
 
   return (
-    <Box>
+    <Box sx={{ animation: `${floatIn} 520ms ease` }}>
       <HeroSection>
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
+        <Box sx={{ position: 'relative', zIndex: 2 }}>
+          <HeroSpark icon={<AutoAwesomeRoundedIcon />} label="Playful legacy, modern precision" />
           <HeroTitle variant="h2">
-            Your Smart Running <span>Companion</span>
+            Run smarter with a <span className="accent">beautifully guided</span> training companion.
           </HeroTitle>
           <HeroSubtitle variant="h6">
-            Training Fox helps you train smarter, recover faster, and perform better with personalized plans, 
-            advanced analytics, and expert guidance for runners of all levels.
+            Training Fox blends the original charm of the app with a sharper, more interactive experience so every session feels purposeful and fun.
           </HeroSubtitle>
-          <CtaButton
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={() => handleNavigate('/training')}
-          >
-            Create Your Training Plan
-          </CtaButton>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={() => navigate('/training')}
+              endIcon={<ArrowOutwardRoundedIcon />}
+            >
+              Build My Plan
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              size="large"
+              onClick={() => navigate('/performance')}
+            >
+              Explore Analytics
+            </Button>
+          </Stack>
+
+          <QuickStats>
+            <StatCard>
+              <Typography variant="overline" color="text.secondary">
+                Weekly Consistency
+              </Typography>
+              <Typography variant="h5">+22%</Typography>
+            </StatCard>
+            <StatCard>
+              <Typography variant="overline" color="text.secondary">
+                Guided Workouts
+              </Typography>
+              <Typography variant="h5">9 Modules</Typography>
+            </StatCard>
+            <StatCard>
+              <Typography variant="overline" color="text.secondary">
+                Experience Style
+              </Typography>
+              <Typography variant="h5">Interactive</Typography>
+            </StatCard>
+            <StatCard>
+              <Typography variant="overline" color="text.secondary">
+                Fox Energy
+              </Typography>
+              <Typography variant="h5">100%</Typography>
+            </StatCard>
+          </QuickStats>
         </Box>
       </HeroSection>
 
-      <Container>
-        <Box sx={{ mb: 8, textAlign: 'center' }}>
-          <SectionTitle variant="h3">
-            Why Runners Love Training Fox
-          </SectionTitle>
-          <SectionSubtitle variant="body1">
-            Our all-in-one platform combines personalized training, advanced analytics, 
-            and expert coaching to help you reach your running goals.
-          </SectionSubtitle>
-        </Box>
+      <Container disableGutters>
+        <SectionHeader>
+          <Typography variant="h3" sx={{ mb: 1 }}>
+            Everything You Need In One Flow
+          </Typography>
+          <Typography color="text.secondary" sx={{ maxWidth: 760, mx: 'auto' }}>
+            Jump into any module quickly. Each section is designed to feel connected, tactile, and motivating.
+          </Typography>
+        </SectionHeader>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={2.5}>
           {features.map((feature, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <FeatureCard onClick={() => handleNavigate(feature.path)}>
-                <CardContent sx={{ p: 4, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <FeatureIcon>
-                    {feature.icon}
-                  </FeatureIcon>
-                  <FeatureTitle variant="h5">
+            <Grid item xs={12} sm={6} md={4} key={feature.title}>
+              <FeatureCard
+                onClick={() => navigate(feature.path)}
+                sx={{ animation: `${floatIn} ${380 + index * 55}ms ease` }}
+              >
+                <CardContent sx={{ p: 3.2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <FeatureIcon>{feature.icon}</FeatureIcon>
+                  <Typography variant="h5" sx={{ mb: 1 }}>
                     {feature.title}
-                  </FeatureTitle>
-                  <FeatureDescription variant="body2">
+                  </Typography>
+                  <Typography color="text.secondary" sx={{ mb: 2.5, flexGrow: 1 }}>
                     {feature.description}
-                  </FeatureDescription>
-                  <Button 
-                    sx={{ mt: 2 }}
+                  </Typography>
+                  <Button
+                    variant="text"
                     color="primary"
-                    onClick={() => handleNavigate(feature.path)}
+                    endIcon={<ArrowOutwardRoundedIcon />}
+                    sx={{ alignSelf: 'flex-start', px: 0 }}
                   >
                     Explore
                   </Button>
@@ -259,43 +309,30 @@ function HomePage() {
           ))}
         </Grid>
 
-        <Box sx={{ mt: 10, mb: 10, textAlign: 'center' }}>
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 6, 
-              borderRadius: 4, 
-              backgroundImage: 'linear-gradient(135deg, #FF6B95 0%, #FF8FAF 100%)',
-              color: 'white'
+        <CtaSection>
+          <Typography variant="h3" sx={{ mb: 1.5 }}>
+            Start a new running chapter today.
+          </Typography>
+          <Typography sx={{ mb: 3, maxWidth: 680, mx: 'auto', opacity: 0.94 }}>
+            Keep the original spark, upgrade your routine, and let each week feel intentional.
+          </Typography>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            onClick={() => navigate('/training')}
+            sx={{
+              backgroundColor: '#fff',
+              color: '#1f2a44',
+              '&:hover': { backgroundColor: '#ffffff' },
             }}
           >
-            <Typography variant="h4" fontWeight={700} sx={{ mb: 2 }}>
-              Ready to Transform Your Running?
-            </Typography>
-            <Typography variant="body1" sx={{ mb: 4, maxWidth: 700, mx: 'auto' }}>
-              Join thousands of runners who use Training Fox to achieve their personal bests, stay injury-free, 
-              and enjoy their running journey.
-            </Typography>
-            <CtaButton
-              variant="contained"
-              color="secondary"
-              size="large"
-              onClick={() => handleNavigate('/training')}
-              sx={{ 
-                backgroundColor: 'white', 
-                color: theme.palette.primary.main,
-                '&:hover': {
-                  backgroundColor: 'white',
-                }
-              }}
-            >
-              Start Your Journey
-            </CtaButton>
-          </Paper>
-        </Box>
+            Create My Personalized Plan
+          </Button>
+        </CtaSection>
       </Container>
     </Box>
   );
 }
 
-export default HomePage; 
+export default HomePage;

@@ -86,7 +86,7 @@ const QuoteCard = styled(Paper)(({ theme }) => ({
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundImage: 'url("/images/pattern.svg")',
+    backgroundImage: 'url("/pattern.svg")',
     backgroundSize: 'cover',
     opacity: 0.03,
     zIndex: 0,

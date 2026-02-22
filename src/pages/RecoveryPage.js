@@ -17,8 +17,8 @@ import {
   Divider,
   Avatar,
   Tooltip,
-  styled,
 } from '@mui/material';
+import { styled, alpha } from '@mui/material/styles';
 import HealingIcon from '@mui/icons-material/Healing';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import TimerIcon from '@mui/icons-material/Timer';
@@ -29,7 +29,6 @@ import SpaIcon from '@mui/icons-material/Spa';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-// Styled components
 const PageHeader = styled(Box)(({ theme }) => ({
   textAlign: 'center',
   padding: theme.spacing(8, 2, 6),
@@ -42,79 +41,89 @@ const PageHeader = styled(Box)(({ theme }) => ({
     left: '50%',
     transform: 'translateX(-50%)',
     height: 4,
-    width: 100,
-    backgroundColor: theme.palette.primary.main,
+    width: 104,
     borderRadius: 2,
+    background: 'linear-gradient(90deg, #ff5f7f 0%, #11a4a5 100%)',
   },
 }));
 
 const PageTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
   marginBottom: theme.spacing(2),
-  position: 'relative',
   '& span': {
-    color: theme.palette.primary.main,
+    background: 'linear-gradient(105deg, #ff5f7f 0%, #11a4a5 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
   },
 }));
 
 const PageSubtitle = styled(Typography)(({ theme }) => ({
-  maxWidth: '800px',
+  maxWidth: 800,
   margin: '0 auto',
   color: theme.palette.text.secondary,
-}));
-
-const SectionTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 700,
-  marginBottom: theme.spacing(2),
-  position: 'relative',
-  display: 'inline-block',
 }));
 
 const BodyMapContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  maxWidth: 500,
+  maxWidth: 420,
   margin: '0 auto',
-  marginTop: theme.spacing(4),
-  marginBottom: theme.spacing(6),
+  marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(5),
+  borderRadius: 24,
+  background: `linear-gradient(140deg, ${alpha(theme.palette.primary.main, 0.1)} 0%, ${alpha(theme.palette.info.main, 0.08)} 100%)`,
+  border: `1px solid ${alpha(theme.palette.secondary.main, 0.1)}`,
+  boxShadow: `0 18px 32px ${alpha(theme.palette.secondary.main, 0.12)}`,
+  paddingTop: '155%',
+  overflow: 'hidden',
 }));
 
-const BodyMap = styled('img')(({ theme }) => ({
-  width: '100%',
-  height: 'auto',
-}));
-
-const InjuryHotspot = styled(Box)(({ theme, active }) => ({
+const BodyMapCanvas = styled(Box)({
   position: 'absolute',
-  width: 24,
-  height: 24,
+  inset: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const InjuryHotspot = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'active',
+})(({ theme, active }) => ({
+  position: 'absolute',
+  width: 22,
+  height: 22,
   borderRadius: '50%',
-  backgroundColor: active ? theme.palette.primary.main : 'rgba(255, 107, 149, 0.6)',
+  backgroundColor: active ? theme.palette.primary.main : alpha(theme.palette.primary.main, 0.76),
   cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  boxShadow: active ? 
-    '0 0 0 8px rgba(255, 107, 149, 0.2), 0 0 0 16px rgba(255, 107, 149, 0.1)' : 
-    '0 0 0 4px rgba(255, 107, 149, 0.2)',
+  transition: 'transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease',
+  boxShadow: active
+    ? `0 0 0 8px ${alpha(theme.palette.primary.main, 0.2)}, 0 0 0 16px ${alpha(theme.palette.primary.main, 0.12)}`
+    : `0 0 0 5px ${alpha(theme.palette.primary.main, 0.2)}`,
+  animation: active ? 'pulseHotspot 1.8s ease-out infinite' : 'none',
   '&:hover': {
-    transform: 'scale(1.2)',
-    backgroundColor: theme.palette.primary.main,
+    transform: 'scale(1.12)',
+    backgroundColor: theme.palette.primary.dark,
+  },
+  '@keyframes pulseHotspot': {
+    '0%': { boxShadow: `0 0 0 0 ${alpha(theme.palette.primary.main, 0.32)}` },
+    '100%': { boxShadow: `0 0 0 18px ${alpha(theme.palette.primary.main, 0)}` },
   },
 }));
 
 const RecoveryCard = styled(Card)(({ theme }) => ({
   height: '100%',
-  borderRadius: 16,
-  transition: 'all 0.3s ease',
+  borderRadius: 20,
+  transition: 'transform 240ms ease, box-shadow 240ms ease',
   overflow: 'hidden',
-  boxShadow: '0 6px 16px rgba(0, 0, 0, 0.05)',
+  border: `1px solid ${alpha(theme.palette.secondary.main, 0.08)}`,
   '&:hover': {
-    transform: 'translateY(-8px)',
-    boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)',
+    transform: 'translateY(-6px)',
+    boxShadow: `0 20px 32px ${alpha(theme.palette.secondary.main, 0.15)}`,
   },
 }));
 
 const RecoveryCardMedia = styled(CardMedia)(({ theme }) => ({
-  height: 180,
+  height: 176,
   position: 'relative',
   overflow: 'hidden',
   '&::after': {
@@ -123,99 +132,110 @@ const RecoveryCardMedia = styled(CardMedia)(({ theme }) => ({
     bottom: 0,
     left: 0,
     width: '100%',
-    height: '30%',
-    background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)',
-  }
+    height: '36%',
+    background: 'linear-gradient(to top, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0) 100%)',
+  },
 }));
 
 const IconAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: '#fff',
-  width: 48,
-  height: 48,
+  width: 46,
+  height: 46,
   marginBottom: theme.spacing(2),
 }));
 
-// Data for injury hotspots
 const injuryHotspots = [
-  { id: 1, name: 'Runner\'s Knee', position: { top: '45%', left: '35%' }, description: 'Pain around or behind the kneecap. Often caused by overuse, improper form, or weak leg muscles.' },
-  { id: 2, name: 'IT Band Syndrome', position: { top: '42%', left: '32%' }, description: 'Pain on the outside of the knee. Typically caused by repetitive friction of the iliotibial band.' },
-  { id: 3, name: 'Shin Splints', position: { top: '52%', left: '45%' }, description: 'Pain along the inner edge of the shinbone. Usually from overuse or improper footwear.' },
-  { id: 4, name: 'Plantar Fasciitis', position: { top: '70%', left: '45%' }, description: 'Pain in the bottom of the foot, especially near the heel. Caused by inflammation of the plantar fascia.' },
-  { id: 5, name: 'Achilles Tendinitis', position: { top: '60%', left: '55%' }, description: 'Pain at the back of the heel or ankle. Results from overuse of the Achilles tendon.' },
-  { id: 6, name: 'Hamstring Strain', position: { top: '35%', left: '55%' }, description: 'Pain in the back of the thigh. Often due to overstretching or overloading the hamstring muscles.' },
-  { id: 7, name: 'Hip Flexor Strain', position: { top: '30%', left: '45%' }, description: 'Pain in the front of the hip or groin. Typically from overuse or sudden movements.' },
+  { id: 1, name: "Runner's Knee", position: { top: '48%', left: '36%' }, description: 'Pain around or behind the kneecap. Often linked to overuse, form issues, or weak stabilizer muscles.' },
+  { id: 2, name: 'IT Band Syndrome', position: { top: '45%', left: '31%' }, description: 'Pain on the outside of the knee from repetitive friction in the iliotibial band.' },
+  { id: 3, name: 'Shin Splints', position: { top: '56%', left: '45%' }, description: 'Pain along the shinbone, commonly triggered by sudden load increases or poor footwear.' },
+  { id: 4, name: 'Plantar Fasciitis', position: { top: '75%', left: '45%' }, description: 'Heel and arch pain caused by inflammation of the plantar fascia.' },
+  { id: 5, name: 'Achilles Tendinitis', position: { top: '66%', left: '56%' }, description: 'Tenderness at the back of the ankle from repetitive stress on the Achilles tendon.' },
+  { id: 6, name: 'Hamstring Strain', position: { top: '38%', left: '56%' }, description: 'Posterior thigh pain from overstretching or sudden acceleration.' },
+  { id: 7, name: 'Hip Flexor Strain', position: { top: '32%', left: '45%' }, description: 'Front hip discomfort often caused by overuse, posture issues, or aggressive speed sessions.' },
 ];
 
-// Recovery methods
 const recoveryMethods = [
   {
     title: 'Active Recovery',
-    description: 'Low-intensity exercise that promotes blood flow without stress on the body.',
+    description: 'Low-intensity movement that boosts circulation and helps clear fatigue without adding stress.',
     icon: <TimerIcon />,
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=900&q=70',
     tips: [
-      'Easy walking or light jogging',
-      'Swimming or water jogging',
-      'Cycling with low resistance',
-      'Gentle yoga or stretching routines',
-      'Keep heart rate under 60% of max'
-    ]
+      'Easy walk or light jog for 20-40 minutes',
+      'Low-resistance cycling or easy swim',
+      'Keep intensity below 60% max heart rate',
+      'Use relaxed nasal breathing to stay easy',
+      'Pair with post-workout mobility',
+    ],
   },
   {
-    title: 'Proper Sleep',
-    description: 'Quality sleep is essential for muscle repair, recovery, and overall performance.',
+    title: 'Sleep Quality',
+    description: 'Deep sleep is where your body repairs tissue, restores hormones, and rebuilds training readiness.',
     icon: <HotelIcon />,
-    image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=900&q=70',
     tips: [
-      'Aim for 7-9 hours per night',
-      'Establish a consistent sleep schedule',
-      'Create a dark, cool, quiet environment',
-      'Avoid screens 1 hour before bed',
-      'Practice relaxation techniques'
-    ]
+      'Target 7-9 hours each night',
+      'Keep a consistent sleep/wake schedule',
+      'Make your room cool, dark, and quiet',
+      'Avoid screens for 45-60 minutes pre-bed',
+      'Use a short wind-down routine',
+    ],
   },
   {
     title: 'Hydration',
-    description: 'Proper fluid intake enhances recovery by helping transport nutrients to muscles.',
+    description: 'Fluid balance helps transport nutrients, maintain blood volume, and speed recovery.',
     icon: <WaterIcon />,
-    image: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    image: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=900&q=70',
     tips: [
-      'Drink half your bodyweight in ounces daily',
-      'Rehydrate with electrolytes after long runs',
-      'Monitor urine color (aim for pale yellow)',
-      'Carry water on all runs over 30 minutes',
-      'Drink 16oz 2 hours before running'
-    ]
+      'Hydrate steadily throughout the day',
+      'Replace electrolytes after long or hot runs',
+      'Use urine color as a quick hydration check',
+      'Sip during sessions longer than 45 minutes',
+      'Start sessions already hydrated',
+    ],
   },
   {
     title: 'Foam Rolling',
-    description: 'Self-myofascial release technique that helps reduce muscle tension and soreness.',
+    description: 'Self-myofascial release can reduce stiffness and improve movement quality between sessions.',
     icon: <SpaIcon />,
-    image: 'https://images.unsplash.com/photo-1607962837359-5e7e89f86776?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    image: 'https://images.unsplash.com/photo-1607962837359-5e7e89f86776?auto=format&fit=crop&w=900&q=70',
     tips: [
-      'Roll each muscle group for 1-2 minutes',
-      'Focus on tender areas (trigger points)',
-      'Avoid rolling directly on joints or bones',
-      'Maintain relaxed breathing throughout',
-      'Be consistent - aim for 3-5 times per week'
-    ]
-  }
+      'Roll each major area for 60-90 seconds',
+      'Pause on tight spots and breathe slowly',
+      'Avoid direct pressure on joints',
+      'Pair rolling with dynamic mobility',
+      'Use 3-5 sessions per week for consistency',
+    ],
+  },
 ];
+
+function RunnerSilhouette() {
+  return (
+    <svg viewBox="0 0 220 360" width="78%" height="92%" aria-label="Runner body map">
+      <defs>
+        <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ff8aa0" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#ff5f7f" stopOpacity="0.45" />
+        </linearGradient>
+      </defs>
+      <circle cx="110" cy="44" r="28" fill="url(#bodyGradient)" />
+      <rect x="82" y="78" width="56" height="94" rx="28" fill="url(#bodyGradient)" />
+      <rect x="58" y="92" width="22" height="86" rx="11" fill="url(#bodyGradient)" />
+      <rect x="140" y="92" width="22" height="86" rx="11" fill="url(#bodyGradient)" />
+      <rect x="84" y="170" width="22" height="136" rx="11" fill="url(#bodyGradient)" />
+      <rect x="114" y="170" width="22" height="136" rx="11" fill="url(#bodyGradient)" />
+      <ellipse cx="96" cy="326" rx="20" ry="10" fill="url(#bodyGradient)" />
+      <ellipse cx="126" cy="326" rx="20" ry="10" fill="url(#bodyGradient)" />
+    </svg>
+  );
+}
 
 function RecoveryPage() {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
 
-  const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
-  };
-
-  const handleHotspotClick = (hotspotId) => {
-    setSelectedHotspot(hotspotId === selectedHotspot ? null : hotspotId);
-  };
-
-  const selectedInjury = injuryHotspots.find(spot => spot.id === selectedHotspot);
+  const selectedInjury = injuryHotspots.find((spot) => spot.id === selectedHotspot);
 
   return (
     <Box>
@@ -224,100 +244,102 @@ function RecoveryPage() {
           Recovery & <span>Injury Prevention</span>
         </PageTitle>
         <PageSubtitle variant="h6">
-          Smart recovery strategies and personalized guidance to keep you running strong and injury-free
+          Protect your consistency with practical recovery routines and interactive injury guidance.
         </PageSubtitle>
       </PageHeader>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
         <Tabs
           value={selectedTab}
-          onChange={handleTabChange}
+          onChange={(_, value) => setSelectedTab(value)}
           variant="fullWidth"
           centered
-          TabIndicatorProps={{ style: { backgroundColor: '#FF6B95' } }}
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{ '& .MuiTab-root': { fontWeight: 700 } }}
         >
-          <Tab label="Injury Prevention" icon={<LocalHospitalIcon />} iconPosition="start" />
+          <Tab label="Injury Map" icon={<LocalHospitalIcon />} iconPosition="start" />
           <Tab label="Recovery Methods" icon={<HealingIcon />} iconPosition="start" />
-          <Tab label="Stretching Routines" icon={<FitnessCenterIcon />} iconPosition="start" />
+          <Tab label="Stretch Lab" icon={<FitnessCenterIcon />} iconPosition="start" />
         </Tabs>
       </Box>
 
       {selectedTab === 0 && (
         <Box>
-          <Typography variant="h5" fontWeight={600} textAlign="center" gutterBottom>
+          <Typography variant="h5" fontWeight={700} textAlign="center" gutterBottom>
             Interactive Body Map
           </Typography>
-          <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 4, maxWidth: 700, mx: 'auto' }}>
-            Click on the highlighted areas to learn about common running injuries, symptoms, and prevention strategies
+          <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 4, maxWidth: 760, mx: 'auto' }}>
+            Tap the highlighted hotspots to inspect common runner injuries, understand why they happen, and see prevention actions.
           </Typography>
-          
+
           <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
               <BodyMapContainer>
-                <BodyMap src="/images/runner-body-map.png" alt="Runner Body Map" />
+                <BodyMapCanvas>
+                  <RunnerSilhouette />
+                </BodyMapCanvas>
                 {injuryHotspots.map((hotspot) => (
                   <Tooltip key={hotspot.id} title={hotspot.name}>
                     <InjuryHotspot
                       style={hotspot.position}
-                      active={(selectedHotspot === hotspot.id).toString()}
-                      onClick={() => handleHotspotClick(hotspot.id)}
+                      active={selectedHotspot === hotspot.id}
+                      onClick={() => setSelectedHotspot(hotspot.id === selectedHotspot ? null : hotspot.id)}
                     />
                   </Tooltip>
                 ))}
               </BodyMapContainer>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Paper elevation={0} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: 'background.subtle' }}>
+              <Paper elevation={0} sx={{ p: 4, borderRadius: 3, height: '100%', backgroundColor: 'background.subtle', border: 1, borderColor: 'divider' }}>
                 {selectedInjury ? (
                   <>
-                    <Typography variant="h5" color="primary.main" fontWeight={700} gutterBottom>
+                    <Typography variant="h5" color="primary.main" fontWeight={800} gutterBottom>
                       {selectedInjury.name}
                     </Typography>
-                    <Typography variant="body1" gutterBottom>
-                      {selectedInjury.description}
-                    </Typography>
+                    <Typography variant="body1">{selectedInjury.description}</Typography>
                     <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight={600} gutterBottom>
-                      Prevention Tips:
+                    <Typography variant="h6" fontWeight={700} gutterBottom>
+                      Prevention Checklist
                     </Typography>
                     <List>
                       <ListItem>
                         <ListItemIcon>
                           <CheckCircleIcon color="primary" />
                         </ListItemIcon>
-                        <ListItemText primary="Maintain proper running form" />
+                        <ListItemText primary="Increase volume gradually (10% rule)" />
                       </ListItem>
                       <ListItem>
                         <ListItemIcon>
                           <CheckCircleIcon color="primary" />
                         </ListItemIcon>
-                        <ListItemText primary="Increase training volume gradually (10% rule)" />
+                        <ListItemText primary="Strength train 2-3 times per week" />
                       </ListItem>
                       <ListItem>
                         <ListItemIcon>
                           <CheckCircleIcon color="primary" />
                         </ListItemIcon>
-                        <ListItemText primary="Wear appropriate footwear for your foot type" />
+                        <ListItemText primary="Rotate shoes and monitor wear patterns" />
                       </ListItem>
                       <ListItem>
                         <ListItemIcon>
                           <CheckCircleIcon color="primary" />
                         </ListItemIcon>
-                        <ListItemText primary="Incorporate strength training 2-3 times per week" />
+                        <ListItemText primary="Warm up dynamically and cool down intentionally" />
                       </ListItem>
                       <ListItem>
                         <ListItemIcon>
                           <CheckCircleIcon color="primary" />
                         </ListItemIcon>
-                        <ListItemText primary="Stretch and warm up properly before runs" />
+                        <ListItemText primary="Respect pain signals early instead of pushing through" />
                       </ListItem>
                     </List>
                   </>
                 ) : (
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                    <ReportProblemIcon sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+                    <ReportProblemIcon sx={{ fontSize: 58, color: 'text.disabled', mb: 2 }} />
                     <Typography variant="h6" color="text.secondary" textAlign="center">
-                      Select an area on the body map to view injury information
+                      Select a hotspot to view injury details and prevention tips.
                     </Typography>
                   </Box>
                 )}
@@ -329,40 +351,35 @@ function RecoveryPage() {
 
       {selectedTab === 1 && (
         <Box>
-          <Typography variant="h5" fontWeight={600} textAlign="center" gutterBottom>
-            Smart Recovery Techniques
+          <Typography variant="h5" fontWeight={700} textAlign="center" gutterBottom>
+            Recovery Methods
           </Typography>
-          <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 5, maxWidth: 700, mx: 'auto' }}>
-            Implement these evidence-based recovery methods to reduce soreness, prevent injuries, and optimize your performance
+          <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 5, maxWidth: 760, mx: 'auto' }}>
+            Use these proven routines to reduce soreness, accelerate adaptation, and stay consistent week to week.
           </Typography>
 
           <Grid container spacing={4}>
-            {recoveryMethods.map((method, index) => (
-              <Grid item xs={12} md={6} key={index}>
+            {recoveryMethods.map((method) => (
+              <Grid item xs={12} md={6} key={method.title}>
                 <RecoveryCard>
-                  <RecoveryCardMedia
-                    image={method.image}
-                    title={method.title}
-                  />
+                  <RecoveryCardMedia image={method.image} title={method.title} />
                   <CardContent sx={{ p: 4 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <IconAvatar>
-                        {method.icon}
-                      </IconAvatar>
-                      <Typography variant="h5" sx={{ ml: 2 }} fontWeight={600}>
+                      <IconAvatar>{method.icon}</IconAvatar>
+                      <Typography variant="h5" sx={{ ml: 2 }} fontWeight={700}>
                         {method.title}
                       </Typography>
                     </Box>
                     <Typography variant="body1" paragraph>
                       {method.description}
                     </Typography>
-                    <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                      How to implement:
+                    <Typography variant="subtitle1" fontWeight={700} gutterBottom>
+                      How to apply it
                     </Typography>
                     <List dense>
-                      {method.tips.map((tip, i) => (
-                        <ListItem key={i} sx={{ py: 0.5 }}>
-                          <ListItemIcon sx={{ minWidth: 36 }}>
+                      {method.tips.map((tip) => (
+                        <ListItem key={tip} sx={{ py: 0.5 }}>
+                          <ListItemIcon sx={{ minWidth: 34 }}>
                             <CheckCircleIcon color="primary" fontSize="small" />
                           </ListItemIcon>
                           <ListItemText primary={tip} />
@@ -379,20 +396,14 @@ function RecoveryPage() {
 
       {selectedTab === 2 && (
         <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h5" fontWeight={600} gutterBottom>
-            Stretching Routines
+          <Typography variant="h5" fontWeight={700} gutterBottom>
+            Stretch Lab (Beta)
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 700, mx: 'auto' }}>
-            Coming soon! Our team of physical therapists and running coaches are creating
-            customized stretching routines targeting common runner trouble spots.
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 760, mx: 'auto' }}>
+            Guided stretching flows are being crafted with coaches and physios. Join the waitlist to get the first release.
           </Typography>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            size="large"
-            sx={{ mt: 2 }}
-          >
-            Get Notified When Available
+          <Button variant="contained" color="primary" size="large">
+            Notify Me First
           </Button>
         </Box>
       )}
@@ -400,4 +411,4 @@ function RecoveryPage() {
   );
 }
 
-export default RecoveryPage; 
+export default RecoveryPage;

@@ -1,240 +1,195 @@
-import React from 'react';
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  styled, 
-  Chip,
-  Fade,
-  Button
-} from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import React, { useMemo } from 'react';
+import { Box, Typography, Paper, styled, Chip, Fade, Button } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 import WorkoutCard from './WorkoutCard';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-// Register required ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// Styled components
 const PlanContainer = styled(Box)({
-  maxWidth: '800px',
+  maxWidth: 980,
   margin: '0 auto',
-  padding: '0 16px'
 });
 
-const SummaryPaper = styled(Paper)(({ theme, color }) => ({
-  padding: '24px',
-  borderRadius: '20px',
-  marginBottom: '32px',
-  background: color || '#FFF9FB',
-  boxShadow: '0 8px 16px rgba(0,0,0,0.08)',
-  textAlign: 'center',
-  border: '2px dashed #FFC6D9'
+const SummaryPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(4),
+  borderRadius: 28,
+  marginBottom: theme.spacing(4),
+  background: `linear-gradient(140deg, ${alpha(theme.palette.primary.main, 0.12)} 0%, ${alpha(theme.palette.info.main, 0.08)} 60%, ${alpha('#ffffff', 0.92)} 100%)`,
+  border: `1px solid ${alpha(theme.palette.secondary.main, 0.12)}`,
+  boxShadow: `0 22px 34px ${alpha(theme.palette.secondary.main, 0.12)}`,
 }));
 
-const SummaryTitle = styled(Typography)({
-  fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
-  fontWeight: 'bold',
-  color: '#6D214F',
-  marginBottom: '16px'
-});
-
-const FitnessLevelChip = styled(Chip)(({ bgcolor, textcolor }) => ({
-  fontSize: '1rem',
-  fontWeight: 'bold',
-  padding: '24px 16px',
-  height: 'auto',
-  marginBottom: '16px',
-  background: bgcolor || '#FFC6D9',
-  color: textcolor || '#6D214F',
-  boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-  '& .MuiChip-label': {
-    padding: '0 12px'
-  }
+const SummaryTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 800,
+  color: theme.palette.secondary.main,
+  marginBottom: theme.spacing(2),
 }));
 
-const StatGrid = styled(Box)({
+const FitnessLevelChip = styled(Chip)(({ theme }) => ({
+  fontWeight: 800,
+  fontSize: '0.98rem',
+  paddingInline: theme.spacing(1.4),
+  height: 38,
+  marginBottom: theme.spacing(2.2),
+  background: 'linear-gradient(100deg, #ff5f7f 0%, #ff8aa0 100%)',
+  color: '#fff',
+}));
+
+const StatGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-  gap: '16px',
-  marginTop: '24px',
-  marginBottom: '24px'
-});
-
-const StatBox = styled(Box)(({ color }) => ({
-  padding: '16px',
-  borderRadius: '12px',
-  background: color || 'rgba(255, 198, 217, 0.3)',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center'
+  gap: theme.spacing(1.4),
+  marginTop: theme.spacing(1.5),
+  marginBottom: theme.spacing(2.8),
 }));
 
-const StatValue = styled(Typography)({
-  fontWeight: 'bold',
+const StatBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderRadius: 16,
+  border: `1px solid ${alpha(theme.palette.secondary.main, 0.1)}`,
+  backgroundColor: alpha('#ffffff', 0.72),
+  textAlign: 'center',
+}));
+
+const StatValue = styled(Typography)(({ theme }) => ({
+  fontWeight: 800,
   fontSize: '1.8rem',
-  color: '#6D214F'
-});
+  color: theme.palette.secondary.main,
+}));
 
-const StatLabel = styled(Typography)({
-  fontSize: '0.8rem',
-  color: '#6D214F',
+const StatLabel = styled(Typography)(({ theme }) => ({
+  fontSize: '0.72rem',
+  color: theme.palette.text.secondary,
   textTransform: 'uppercase',
-  letterSpacing: '0.5px'
-});
+  letterSpacing: '0.08em',
+  fontWeight: 700,
+}));
 
-const ChartContainer = styled(Box)({
-  width: '200px',
-  height: '200px',
-  margin: '0 auto 24px auto'
-});
+const ChartContainer = styled(Box)(({ theme }) => ({
+  width: 230,
+  height: 230,
+  margin: `${theme.spacing(2)} auto ${theme.spacing(2)} auto`,
+}));
 
-const WorkoutsContainer = styled(Box)({
+const WorkoutsContainer = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-  gap: '16px',
-  marginTop: '24px'
-});
+  gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+  gap: theme.spacing(2),
+  marginTop: theme.spacing(2),
+}));
 
-const ResetButton = styled(Button)({
-  background: 'linear-gradient(45deg, #FFC6D9 30%, #FFD6E6 90%)',
-  borderRadius: '999px',
-  border: 0,
-  color: '#6D214F',
-  height: 48,
-  padding: '0 30px',
-  boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-  marginTop: '24px',
-  fontWeight: 'bold',
-  textTransform: 'none',
-  '&:hover': {
-    background: 'linear-gradient(45deg, #FFB8E6 30%, #FFC6D9 90%)',
-  }
-});
+const ResetButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+  borderRadius: 999,
+  paddingInline: theme.spacing(3.2),
+  fontWeight: 800,
+}));
 
 const TrainingPlan = ({ trainingData, fitnessLevel, weeklyMileage, onReset }) => {
-  // Calculate total stats
   const totalDistance = trainingData.reduce((sum, workout) => sum + workout.distance, 0);
   const totalDuration = trainingData.reduce((sum, workout) => sum + workout.duration, 0);
-  const activeWorkouts = trainingData.filter(workout => workout.distance > 0);
-  const restDays = trainingData.filter(workout => workout.distance === 0);
-  
-  // Prepare chart data
-  const workoutTypes = {};
-  activeWorkouts.forEach(workout => {
-    if (!workoutTypes[workout.workoutType]) {
-      workoutTypes[workout.workoutType] = 0;
-    }
-    workoutTypes[workout.workoutType] += workout.distance;
-  });
-  
+  const activeWorkouts = trainingData.filter((workout) => workout.distance > 0);
+  const restDays = trainingData.filter((workout) => workout.distance === 0);
+
+  const workoutTypes = useMemo(() => {
+    const grouped = {};
+    activeWorkouts.forEach((workout) => {
+      grouped[workout.workoutType] = (grouped[workout.workoutType] || 0) + workout.distance;
+    });
+    return grouped;
+  }, [activeWorkouts]);
+
   const chartData = {
     labels: Object.keys(workoutTypes),
     datasets: [
       {
         data: Object.values(workoutTypes),
-        backgroundColor: [
-          '#FF93C9', // Pink
-          '#A2D2FF', // Blue
-          '#C8FFB0', // Green
-          '#FFCCF9', // Light pink
-          '#B5DEFF', // Light blue
-          '#AEFFA5', // Light green
-        ],
-        borderWidth: 0,
+        backgroundColor: ['#ff7d97', '#11a4a5', '#f5a524', '#7c8eff', '#7acb5e', '#f28cb1'],
+        borderColor: '#ffffff',
+        borderWidth: 2,
       },
     ],
   };
-  
+
   const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'bottom',
         labels: {
+          boxWidth: 12,
+          color: '#4f5770',
+          usePointStyle: true,
+          pointStyle: 'circle',
+          padding: 16,
           font: {
-            family: 'Comic Sans MS',
-            size: 12
+            family: '"Nunito Sans", sans-serif',
+            size: 11,
+            weight: 700,
           },
-          color: '#6D214F',
-          padding: 20
-        }
-      }
+        },
+      },
     },
-    cutout: '40%'
+    cutout: '62%',
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in timeout={500}>
       <PlanContainer>
-        <SummaryPaper>
-          <SummaryTitle variant="h5">
-            <span role="img" aria-label="trophy">🏆</span> Your Personal Training Plan <span role="img" aria-label="trophy">🏆</span>
-          </SummaryTitle>
-          
-          <FitnessLevelChip 
-            label={`${fitnessLevel} Runner`} 
-            bgcolor="#FF93C9"
-            textcolor="white"
-          />
-          
+        <SummaryPaper elevation={0}>
+          <SummaryTitle variant="h4">Your Personalized Week Plan</SummaryTitle>
+
+          <FitnessLevelChip icon={<AutoAwesomeRoundedIcon />} label={`${fitnessLevel} Runner`} />
+
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 660, mx: 'auto', mb: 2, textAlign: 'center' }}>
+            Built around your current base of {weeklyMileage} miles per week, with smart balance between challenge and recovery.
+          </Typography>
+
           <StatGrid>
             <StatBox>
               <StatValue>{totalDistance.toFixed(1)}</StatValue>
               <StatLabel>Weekly Miles</StatLabel>
             </StatBox>
-            
             <StatBox>
               <StatValue>{(totalDuration / 60).toFixed(1)}</StatValue>
               <StatLabel>Total Hours</StatLabel>
             </StatBox>
-            
             <StatBox>
               <StatValue>{activeWorkouts.length}</StatValue>
               <StatLabel>Active Days</StatLabel>
             </StatBox>
-            
             <StatBox>
               <StatValue>{restDays.length}</StatValue>
-              <StatLabel>Rest Days</StatLabel>
+              <StatLabel>Recovery Days</StatLabel>
             </StatBox>
           </StatGrid>
-          
-          <Typography variant="body1" sx={{ marginBottom: '24px', color: '#6D214F' }}>
-            <span role="img" aria-label="sparkles">✨</span> This cute plan is designed for your {fitnessLevel.toLowerCase()} fitness level!
-          </Typography>
-          
+
           <ChartContainer>
             <Pie data={chartData} options={chartOptions} />
           </ChartContainer>
         </SummaryPaper>
-        
-        <Typography variant="h6" sx={{ 
-          marginBottom: '16px', 
-          fontWeight: 'bold',
-          color: '#6D214F',
-          fontFamily: '"Comic Sans MS", "Comic Sans", cursive' 
-        }}>
-          <span role="img" aria-label="calendar">📅</span> Your 7-Day Schedule
+
+        <Typography variant="h5" sx={{ mb: 1.2 }}>
+          7-Day Schedule
         </Typography>
-        
+        <Typography color="text.secondary">
+          Tap into each day below for distance, duration, and pacing guidance.
+        </Typography>
+
         <WorkoutsContainer>
           {trainingData.map((workout, index) => (
-            <WorkoutCard 
-              key={index} 
-              workout={workout} 
-              fitnessLevel={fitnessLevel} 
-            />
+            <WorkoutCard key={`${workout.workoutType}-${index}`} workout={workout} fitnessLevel={fitnessLevel} />
           ))}
         </WorkoutsContainer>
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <ResetButton 
-            onClick={onReset}
-            startIcon={<RefreshIcon />}
-          >
-            Create a New Plan
+          <ResetButton onClick={onReset} variant="contained" color="primary" startIcon={<RefreshRoundedIcon />}>
+            Create Another Plan
           </ResetButton>
         </Box>
       </PlanContainer>
@@ -242,4 +197,4 @@ const TrainingPlan = ({ trainingData, fitnessLevel, weeklyMileage, onReset }) =>
   );
 };
 
-export default TrainingPlan; 
+export default TrainingPlan;

@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Box, 
-  useScrollTrigger, 
-  styled,
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
   Button,
   IconButton,
   Drawer,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Divider,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Tooltip,
+  Chip,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { styled, alpha } from '@mui/material/styles';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
+import ShuffleRoundedIcon from '@mui/icons-material/ShuffleRounded';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -28,313 +31,263 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import HealingIcon from '@mui/icons-material/Healing';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import WatchIcon from '@mui/icons-material/Watch';
-
-// Enhanced app bar with elevation scroll effect
-function ElevationScroll(props) {
-  const { children } = props;
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 0,
-  });
-
-  return React.cloneElement(children, {
-    elevation: trigger ? 4 : 0,
-    style: {
-      backgroundColor: trigger ? '#FFFFFF' : 'transparent',
-      boxShadow: trigger 
-        ? '0 4px 20px rgba(0, 0, 0, 0.08)' 
-        : '0 4px 12px rgba(255, 107, 149, 0.2)',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    }
-  });
-}
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundImage: 'linear-gradient(135deg, #FF6B95 0%, #FF8FAF 100%)',
-  boxShadow: '0 4px 12px rgba(255, 107, 149, 0.2)',
-  borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
-  position: 'relative',
+  position: 'sticky',
+  top: 0,
   zIndex: 1100,
-  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    height: '6px',
-    background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%)',
-    zIndex: 1,
-  },
+  background: `linear-gradient(110deg, ${alpha('#ffffff', 0.88)} 0%, ${alpha('#fff7fa', 0.86)} 100%)`,
+  backdropFilter: 'blur(14px)',
+  borderBottom: `1px solid ${alpha(theme.palette.secondary.main, 0.08)}`,
+  boxShadow: `0 10px 24px ${alpha(theme.palette.secondary.main, 0.08)}`,
 }));
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
-  padding: `${theme.spacing(1.5)} ${theme.spacing(3)}`,
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  [theme.breakpoints.up('md')]: {
-    padding: `${theme.spacing(1)} ${theme.spacing(4)}`,
+  minHeight: 78,
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1),
+  [theme.breakpoints.up('sm')]: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
 }));
 
-const LogoContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
+const BrandButton = styled(Box)(({ theme }) => ({
+  display: 'inline-flex',
   alignItems: 'center',
-  gap: theme.spacing(2),
+  gap: theme.spacing(1.2),
   cursor: 'pointer',
-  transition: 'transform 0.3s ease',
+  userSelect: 'none',
+  borderRadius: 999,
+  padding: theme.spacing(0.9, 1.5),
+  transition: 'transform 220ms ease, background-color 220ms ease',
   '&:hover': {
-    transform: 'scale(1.05)',
+    transform: 'translateY(-1px)',
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
   },
 }));
 
-const HeaderTitle = styled(Typography)(({ theme }) => ({
-  fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
-  fontWeight: 700,
-  fontSize: '1.5rem',
-  color: '#2C2C2C',
-  textShadow: '1px 1px 2px rgba(255, 255, 255, 0.2)',
-  display: 'flex',
-  alignItems: 'center',
-  gap: theme.spacing(1.5),
-  position: 'relative',
-  letterSpacing: '0.02em',
-  '& .fox-emoji': {
-    fontSize: '1.5em',
-    transform: 'rotate(-10deg)',
-    transition: 'all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6)',
-    filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))',
-    '&:hover': {
-      transform: 'rotate(10deg) scale(1.2)',
-      filter: 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15))',
+const FoxBadge = styled('span')(({ theme }) => ({
+  fontSize: '1.6rem',
+  filter: `drop-shadow(0 8px 10px ${alpha(theme.palette.primary.main, 0.28)})`,
+  transition: 'transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+  display: 'inline-block',
+  transform: 'rotate(-5deg)',
+  animation: 'foxWiggle 4.2s ease-in-out infinite',
+  '@keyframes foxWiggle': {
+    '0%, 100%': {
+      transform: 'rotate(-5deg)',
+    },
+    '50%': {
+      transform: 'rotate(7deg)',
     },
   },
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: '-4px',
-    left: '55px',
-    width: '60%',
-    height: '2px',
-    background: 'linear-gradient(90deg, rgba(44, 44, 44, 0.7) 0%, rgba(44, 44, 44, 0) 100%)',
-    borderRadius: '2px',
-    transform: 'scaleX(0.8)',
-    transformOrigin: 'left',
-    transition: 'transform 0.3s ease',
-  },
-  '&:hover::after': {
-    transform: 'scaleX(1)',
+}));
+
+const Title = styled(Typography)(({ theme }) => ({
+  fontWeight: 800,
+  color: theme.palette.secondary.main,
+  fontSize: '1.1rem',
+  letterSpacing: '0.01em',
+  [theme.breakpoints.up('sm')]: {
+    fontSize: '1.25rem',
   },
 }));
 
-const NavigationContainer = styled(Box)(({ theme }) => ({
+const NavWrap = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1),
-  [theme.breakpoints.up('md')]: {
-    gap: theme.spacing(2),
-  },
 }));
 
-const NavButton = styled(Button)(({ theme }) => ({
-  borderRadius: '999px',
-  textTransform: 'none',
-  padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
-  fontWeight: 600,
-  color: '#2C2C2C',
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  transition: 'all 0.3s ease',
+const NavButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== 'active',
+})(({ theme, active }) => ({
+  borderRadius: 999,
+  fontWeight: 700,
+  paddingInline: theme.spacing(2),
+  color: active ? theme.palette.primary.dark : theme.palette.secondary.main,
+  backgroundColor: active ? alpha(theme.palette.primary.main, 0.14) : 'transparent',
+  border: active ? `1px solid ${alpha(theme.palette.primary.main, 0.24)}` : '1px solid transparent',
   '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    transform: 'translateY(-2px)',
+    backgroundColor: alpha(theme.palette.primary.main, 0.12),
   },
 }));
 
-const DrawerContainer = styled(Box)(({ theme }) => ({
-  width: 280,
-  padding: theme.spacing(2, 0),
-  '& .MuiListItem-root': {
-    padding: theme.spacing(1.5, 3),
-    margin: theme.spacing(0.5, 2),
-    borderRadius: 8,
-    transition: 'all 0.2s ease',
-    '&:hover': {
-      backgroundColor: 'rgba(255, 107, 149, 0.08)',
-    },
-  },
-  '& .MuiListItemIcon-root': {
-    minWidth: 40,
-    color: theme.palette.primary.main,
+const UtilityButton = styled(IconButton)(({ theme }) => ({
+  borderRadius: 14,
+  color: theme.palette.secondary.main,
+  border: `1px solid ${alpha(theme.palette.secondary.main, 0.14)}`,
+  backgroundColor: alpha(theme.palette.background.paper, 0.72),
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.primary.main, 0.12),
   },
 }));
 
-const DrawerHeader = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(3),
-  paddingBottom: theme.spacing(1),
+const DrawerContent = styled(Box)(({ theme }) => ({
+  width: 320,
+  maxWidth: '100vw',
+  padding: theme.spacing(1.5),
+}));
+
+const DrawerBrand = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'space-between',
+  gap: theme.spacing(1),
+  padding: theme.spacing(1.5, 1.25),
 }));
 
-// Decorative elements
-const Decoration = styled(Box)(({ theme, position }) => ({
-  position: 'absolute',
-  width: '120px',
-  height: '120px',
-  background: position === 'left' 
-    ? 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%)' 
-    : 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%)',
-  borderRadius: '50%',
-  top: position === 'left' ? '-20px' : '50%',
-  left: position === 'left' ? '-20px' : 'auto',
-  right: position === 'right' ? '-20px' : 'auto',
-  transform: position === 'left' ? 'none' : 'translateY(-50%)',
-  opacity: 0.8,
-  zIndex: 0,
-  pointerEvents: 'none',
-}));
-
-// List of navigation items for all features
 const navigationItems = [
-  { text: 'Home', icon: <DirectionsRunIcon />, path: '/' },
+  { text: 'Home', icon: <HomeRoundedIcon />, path: '/' },
   { text: 'Training Plan', icon: <DirectionsRunIcon />, path: '/training-plan' },
-  { text: 'Recovery & Injury Prevention', icon: <HealingIcon />, path: '/recovery' },
-  { text: 'Race Preparation', icon: <EmojiEventsIcon />, path: '/races' },
-  { text: 'Performance Analysis', icon: <ShowChartIcon />, path: '/performance' },
-  { text: 'Mental Training', icon: <PsychologyIcon />, path: '/mental' },
+  { text: 'Recovery', icon: <HealingIcon />, path: '/recovery' },
+  { text: 'Race Prep', icon: <EmojiEventsIcon />, path: '/races' },
+  { text: 'Performance', icon: <ShowChartIcon />, path: '/performance' },
+  { text: 'Mental', icon: <PsychologyIcon />, path: '/mental' },
   { text: 'Nutrition', icon: <RestaurantIcon />, path: '/nutrition' },
   { text: 'Community', icon: <PeopleIcon />, path: '/community' },
-  { text: 'Strength Training', icon: <FitnessCenterIcon />, path: '/strength' },
-  { text: 'Device Integration', icon: <WatchIcon />, path: '/devices' },
+  { text: 'Strength', icon: <FitnessCenterIcon />, path: '/strength' },
+  { text: 'Devices', icon: <WatchIcon />, path: '/devices' },
 ];
 
-function Header(props) {
+const desktopItems = ['/', '/training-plan', '/performance', '/recovery', '/nutrition'];
+
+function Header() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [animate, setAnimate] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  
-  // Function to handle navigation
+
+  const normalizePath = (path) => (path === '/training' ? '/training-plan' : path);
+  const currentPath = normalizePath(location.pathname);
+  const isActivePath = (path) => currentPath === normalizePath(path);
+
   const handleNavigation = (path) => {
     navigate(path);
     setDrawerOpen(false);
   };
-  
-  // Toggle drawer
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === 'keydown' &&
-      (event.key === 'Tab' || event.key === 'Shift')
-    ) {
-      return;
+
+  const handleSurprise = () => {
+    const pool = navigationItems.filter((item) => !isActivePath(item.path));
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    if (pick) {
+      navigate(pick.path);
+      setDrawerOpen(false);
     }
-    setDrawerOpen(open);
   };
 
-  // Trigger animation after mount
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setAnimate(true);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
-    <ElevationScroll {...props}>
-      <StyledAppBar position="sticky">
-        <Decoration position="left" />
-        <Decoration position="right" />
-        <StyledToolbar>
-          <Decoration position="left" />
-          <Decoration position="right" />
-          <LogoContainer onClick={() => handleNavigation('/')}>
-            <HeaderTitle 
-              variant={isMobile ? "h5" : "h4"}
-              sx={{
-                opacity: animate ? 1 : 0,
-                transform: animate ? 'translateY(0)' : 'translateY(-10px)',
-                transition: 'opacity 0.5s ease, transform 0.5s ease',
-              }}
-            >
-              <span className="fox-emoji">🦊</span>
-              Training Fox
-            </HeaderTitle>
-          </LogoContainer>
+    <StyledAppBar elevation={0}>
+      <StyledToolbar>
+        <BrandButton onClick={() => handleNavigation('/')} aria-label="Go to home">
+          <FoxBadge>🦊</FoxBadge>
+          <Title>Training Fox</Title>
+        </BrandButton>
 
-          {!isMobile ? (
-            <NavigationContainer>
-              {/* Show only a few important navigation items on desktop */}
-              <NavButton onClick={() => handleNavigation('/')}>
-                Home
-              </NavButton>
-              <NavButton onClick={() => handleNavigation('/training-plan')}>
-                Training
-              </NavButton>
-              <NavButton onClick={() => handleNavigation('/recovery')}>
-                Recovery
-              </NavButton>
-              <NavButton onClick={() => handleNavigation('/races')}>
-                Races
-              </NavButton>
-              <IconButton
-                edge="end"
-                color="inherit"
-                aria-label="menu"
-                onClick={toggleDrawer(true)}
-                sx={{ ml: 1 }}
-              >
-                <MenuIcon />
-              </IconButton>
-            </NavigationContainer>
-          ) : (
-            <IconButton
-              edge="end"
-              color="inherit"
-              aria-label="menu"
-              onClick={toggleDrawer(true)}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-        </StyledToolbar>
+        {!isMobile ? (
+          <NavWrap>
+            {desktopItems.map((path) => {
+              const item = navigationItems.find((navItem) => navItem.path === path);
+              if (!item) {
+                return null;
+              }
 
-        {/* Navigation Drawer */}
-        <Drawer
-          anchor="right"
-          open={drawerOpen}
-          onClose={toggleDrawer(false)}
-        >
-          <DrawerContainer
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
-          >
-            <DrawerHeader>
-              <Typography variant="h6" fontWeight="bold">
-                Training Fox Features
-              </Typography>
-            </DrawerHeader>
-            <Divider />
-            <List>
-              {navigationItems.map((item) => (
-                <ListItem 
-                  button 
-                  key={item.text}
+              return (
+                <NavButton
+                  key={item.path}
+                  active={isActivePath(item.path) ? 1 : 0}
                   onClick={() => handleNavigation(item.path)}
+                  startIcon={item.icon}
                 >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                </ListItem>
-              ))}
-            </List>
-          </DrawerContainer>
-        </Drawer>
-      </StyledAppBar>
-    </ElevationScroll>
+                  {item.text}
+                </NavButton>
+              );
+            })}
+
+            <Chip
+              icon={<AutoAwesomeRoundedIcon sx={{ fontSize: 16 }} />}
+              label="Legacy spark mode"
+              variant="outlined"
+              sx={{ borderColor: alpha(theme.palette.primary.main, 0.3) }}
+            />
+
+            <Tooltip title="Take me somewhere fun">
+              <UtilityButton aria-label="Surprise me" onClick={handleSurprise}>
+                <ShuffleRoundedIcon />
+              </UtilityButton>
+            </Tooltip>
+
+            <UtilityButton aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
+              <MenuRoundedIcon />
+            </UtilityButton>
+          </NavWrap>
+        ) : (
+          <NavWrap>
+            <Tooltip title="Surprise me">
+              <UtilityButton aria-label="Surprise me" onClick={handleSurprise}>
+                <ShuffleRoundedIcon />
+              </UtilityButton>
+            </Tooltip>
+            <UtilityButton aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
+              <MenuRoundedIcon />
+            </UtilityButton>
+          </NavWrap>
+        )}
+      </StyledToolbar>
+
+      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <DrawerContent role="presentation">
+          <DrawerBrand>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography component="span" sx={{ fontSize: '1.4rem' }}>
+                🦊
+              </Typography>
+              <Typography variant="h6" fontWeight={800}>
+                Explore
+              </Typography>
+            </Box>
+            <Tooltip title="Surprise me">
+              <IconButton size="small" onClick={handleSurprise}>
+                <ShuffleRoundedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </DrawerBrand>
+          <Divider sx={{ mb: 1.5 }} />
+          <List disablePadding>
+            {navigationItems.map((item) => (
+              <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+                <ListItemButton
+                  selected={isActivePath(item.path)}
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{
+                    borderRadius: 2,
+                    '&.Mui-selected': {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.14),
+                      '&:hover': {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                      },
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 40, color: 'primary.main' }}>{item.icon}</ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    primaryTypographyProps={{
+                      fontWeight: isActivePath(item.path) ? 700 : 600,
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DrawerContent>
+      </Drawer>
+    </StyledAppBar>
   );
 }
 
-export default Header; 
+export default Header;

@@ -33,7 +33,6 @@ import BluetoothIcon from '@mui/icons-material/Bluetooth';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WifiIcon from '@mui/icons-material/Wifi';
 import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer';
 
 // Styled components
 const PageHeader = styled(Box)(({ theme }) => ({
@@ -170,22 +169,26 @@ const connectedDevices = [
 const compatibleApps = [
   {
     name: "Strava",
-    icon: "/images/strava-icon.png",
+    glyph: "S",
+    color: "#fc4c02",
     connected: true,
   },
   {
     name: "Nike Run Club",
-    icon: "/images/nike-icon.png",
+    glyph: "N",
+    color: "#111111",
     connected: false,
   },
   {
     name: "Garmin Connect",
-    icon: "/images/garmin-icon.png",
+    glyph: "G",
+    color: "#0075c9",
     connected: true,
   },
   {
     name: "MapMyRun",
-    icon: "/images/mapmyrun-icon.png",
+    glyph: "M",
+    color: "#00a76f",
     connected: false,
   },
 ];
@@ -438,11 +441,14 @@ function DevicesPage() {
                 <React.Fragment key={index}>
                   <ListItem>
                     <ListItemIcon>
-                      <Avatar 
-                        src={app.icon} 
-                        sx={{ bgcolor: 'transparent' }}
+                      <Avatar
+                        sx={{
+                          bgcolor: app.color,
+                          color: '#fff',
+                          fontWeight: 800,
+                        }}
                       >
-                        <SportsSoccerIcon />
+                        {app.glyph}
                       </Avatar>
                     </ListItemIcon>
                     <ListItemText 

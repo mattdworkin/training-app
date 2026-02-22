@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
-  <rect width="192" height="192" fill="#FFF9FB" rx="30"/>
-  <circle cx="96" cy="96" r="70" fill="#FF6B95"/>
-  <text x="96" y="115" text-anchor="middle" font-family="Arial" font-size="60" font-weight="bold" fill="white">TF</text>
-</svg> 

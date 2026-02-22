@@ -13,6 +13,7 @@ import {
   Fade,
   Paper,
   Zoom,
+  LinearProgress,
   styled 
 } from '@mui/material';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
@@ -81,7 +82,8 @@ const FormSubtitle = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(5),
   textAlign: 'center',
   maxWidth: '400px',
-  margin: '0 auto',
+  marginLeft: 'auto',
+  marginRight: 'auto',
   fontSize: '0.95rem',
 }));
 
@@ -95,11 +97,11 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
       borderColor: theme.palette.primary.main,
       borderWidth: '2px',
     },
-    '&.Mui-focused fieldset': {
-      borderColor: theme.palette.primary.main,
-      borderWidth: '2px',
-      boxShadow: '0 0 0 4px rgba(255, 140, 66, 0.1)',
-    },
+            '&.Mui-focused fieldset': {
+              borderColor: theme.palette.primary.main,
+              borderWidth: '2px',
+              boxShadow: '0 0 0 4px rgba(255, 95, 127, 0.12)',
+            },
     '& .MuiInputAdornment-root': {
       color: theme.palette.text.secondary,
     },
@@ -135,11 +137,11 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
       borderColor: theme.palette.primary.main,
       borderWidth: '2px',
     },
-    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-      borderColor: theme.palette.primary.main,
-      borderWidth: '2px',
-      boxShadow: '0 0 0 4px rgba(255, 140, 66, 0.1)',
-    },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: theme.palette.primary.main,
+              borderWidth: '2px',
+              boxShadow: '0 0 0 4px rgba(255, 95, 127, 0.12)',
+            },
     '& .MuiInputAdornment-root': {
       color: theme.palette.text.secondary,
     },
@@ -243,8 +245,12 @@ const BackgroundDecoration = styled(Box)(({ theme, position }) => ({
 function UserForm({ formData, setFormData, onSubmit }) {
   const [touched, setTouched] = useState({});
   const [inputFocus, setInputFocus] = useState('');
-  const [validForm, setValidForm] = useState(false);
+  const [validForm, setValidForm] = useState(true);
   const [formAnimation, setFormAnimation] = useState(false);
+  const isLbs = formData.weightUnit === 'lbs';
+  const minWeight = isLbs ? 66 : 30;
+  const maxWeight = isLbs ? 440 : 200;
+  const weightLabel = `Weight (${isLbs ? 'lbs' : 'kg'})`;
   
   // Validate form fields
   const validate = (field, value) => {
@@ -252,7 +258,9 @@ function UserForm({ formData, setFormData, onSubmit }) {
       case 'age':
         return value >= 13 && value <= 100;
       case 'weight':
-        return value >= 30 && value <= 200;
+        return value >= minWeight && value <= maxWeight;
+      case 'weightUnit':
+        return ['kg', 'lbs'].includes(value);
       case 'gender':
         return ['male', 'female', 'other'].includes(value);
       case 'weeklyMileage':
@@ -298,6 +306,10 @@ function UserForm({ formData, setFormData, onSubmit }) {
     return () => clearTimeout(timer);
   }, []);
 
+  const totalFields = Object.keys(formData).length;
+  const completeFields = Object.keys(formData).filter((key) => validate(key, formData[key])).length;
+  const completion = Math.round((completeFields / totalFields) * 100);
+
   return (
     <Fade in={formAnimation} timeout={500}>
       <Box sx={{ position: 'relative' }}>
@@ -312,6 +324,26 @@ function UserForm({ formData, setFormData, onSubmit }) {
           <FormSubtitle variant="body2">
             Fill in the details below and our clever fox will design a personalized training plan just for you.
           </FormSubtitle>
+
+          <Box sx={{ mb: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.8 }}>
+              <Typography variant="caption" fontWeight={700} color="text.secondary">
+                Profile completion
+              </Typography>
+              <Typography variant="caption" fontWeight={700} color="primary.main">
+                {completion}%
+              </Typography>
+            </Box>
+            <LinearProgress
+              variant="determinate"
+              value={completion}
+              sx={{
+                height: 8,
+                borderRadius: 999,
+                backgroundColor: 'rgba(255, 107, 149, 0.12)',
+              }}
+            />
+          </Box>
           
           <form onSubmit={onSubmit} noValidate>
             <Box sx={{ position: 'relative', zIndex: 1 }}>
@@ -348,7 +380,7 @@ function UserForm({ formData, setFormData, onSubmit }) {
               
               <Zoom in={true} style={{ transitionDelay: '200ms' }}>
                 <StyledTextField
-                  label="Weight (kg)"
+                  label={weightLabel}
                   type="number"
                   name="weight"
                   value={formData.weight}
@@ -358,7 +390,7 @@ function UserForm({ formData, setFormData, onSubmit }) {
                   fullWidth
                   required
                   error={touched.weight && !validate('weight', formData.weight)}
-                  helperText={touched.weight && !validate('weight', formData.weight) ? "Weight must be between 30 and 200 kg" : ""}
+                  helperText={touched.weight && !validate('weight', formData.weight) ? `Weight must be between ${minWeight} and ${maxWeight} ${isLbs ? 'lbs' : 'kg'}` : ""}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -367,17 +399,40 @@ function UserForm({ formData, setFormData, onSubmit }) {
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <StyledTooltip title="Your weight helps us calculate calories burned and proper pacing" placement="left">
+                        <StyledTooltip title={`Your weight helps us calculate calories burned and proper pacing (${isLbs ? 'automatically converted to kg' : 'stored in kg'})`} placement="left">
                           <InfoOutlinedIcon sx={{ fontSize: '1rem', cursor: 'help', opacity: 0.7 }} />
                         </StyledTooltip>
                       </InputAdornment>
                     ),
-                    inputProps: { min: 30, max: 200, 'aria-label': 'weight in kilograms' }
+                    inputProps: { min: minWeight, max: maxWeight, 'aria-label': `weight in ${isLbs ? 'pounds' : 'kilograms'}` }
                   }}
                 />
               </Zoom>
+
+              <Zoom in={true} style={{ transitionDelay: '250ms' }}>
+                <StyledFormControl
+                  fullWidth
+                  required
+                  error={touched.weightUnit && !validate('weightUnit', formData.weightUnit)}
+                >
+                  <InputLabel id="weight-unit-label">Weight Unit</InputLabel>
+                  <Select
+                    labelId="weight-unit-label"
+                    name="weightUnit"
+                    value={formData.weightUnit || 'kg'}
+                    onChange={handleChange}
+                    onFocus={() => handleFocus('weightUnit')}
+                    onBlur={() => handleBlur('weightUnit')}
+                    label="Weight Unit"
+                    inputProps={{ 'aria-label': 'weight unit' }}
+                  >
+                    <MenuItem value="kg">Kilograms (kg)</MenuItem>
+                    <MenuItem value="lbs">Pounds (lbs)</MenuItem>
+                  </Select>
+                </StyledFormControl>
+              </Zoom>
               
-              <Zoom in={true} style={{ transitionDelay: '300ms' }}>
+              <Zoom in={true} style={{ transitionDelay: '320ms' }}>
                 <StyledFormControl 
                   fullWidth 
                   required
@@ -406,7 +461,7 @@ function UserForm({ formData, setFormData, onSubmit }) {
                 </StyledFormControl>
               </Zoom>
               
-              <Zoom in={true} style={{ transitionDelay: '400ms' }}>
+              <Zoom in={true} style={{ transitionDelay: '420ms' }}>
                 <StyledTextField
                   label="Current Weekly Mileage"
                   type="number"
@@ -437,7 +492,7 @@ function UserForm({ formData, setFormData, onSubmit }) {
                 />
               </Zoom>
               
-              <Zoom in={true} style={{ transitionDelay: '500ms' }}>
+              <Zoom in={true} style={{ transitionDelay: '520ms' }}>
                 <Box sx={{ textAlign: 'center', mt: 4 }}>
                   <StyledButton
                     type="submit"
